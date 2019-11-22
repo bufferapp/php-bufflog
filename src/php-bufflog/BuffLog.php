@@ -47,7 +47,7 @@ class BuffLog {
         $this->getLogger()->critical($message);
     }
 
-    protected function createLogger()
+    private function createLogger()
     {
         $logger = new Logger('php-bufflog');
         $handler = new MonologStreamHandler('php://stdout', Logger::INFO);
@@ -57,7 +57,7 @@ class BuffLog {
         return $logger;
     }
 
-    public function getLogger()
+    private function getLogger()
     {
       if (!isset($this->logger)) {
         $this->logger = $this->createLogger();
