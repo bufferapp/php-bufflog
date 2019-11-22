@@ -1,4 +1,4 @@
-# buffer-php-logger
+# PHP BuffLog
 
 PHP logger for all Buffer services
 
