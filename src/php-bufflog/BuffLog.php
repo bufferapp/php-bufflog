@@ -19,6 +19,34 @@ use Monolog\Handler\StreamHandler as MonologStreamHandler;
 
 class BuffLog {
 
+    private $logger;
+
+    public function debug($message)
+    {
+        $this->getLogger()->debug($message);
+    }
+
+    public function info($message)
+    {
+        $this->getLogger()->info($message);
+    }
+
+    public function warn($message)
+    {
+        $this->getLogger()->warn($message);
+    }
+
+
+    public function error($message)
+    {
+        $this->getLogger()->error($message);
+    }
+
+    public function critical($message)
+    {
+        $this->getLogger()->critical($message);
+    }
+
     protected function createLogger()
     {
         $logger = new Logger('php-bufflog');
@@ -27,6 +55,15 @@ class BuffLog {
         $logger->pushHandler($handler);
 
         return $logger;
+    }
+
+    public function getLogger()
+    {
+      if (!isset($this->logger)) {
+        $this->logger = $this->createLogger();
+      }
+
+      return $this->logger;
     }
 
 }
