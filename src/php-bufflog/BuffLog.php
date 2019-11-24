@@ -21,6 +21,12 @@ class BuffLog {
 
     private $logger;
 
+    public function __construct()
+    {
+        $this->createLogger();
+    }
+
+
     public function debug($message)
     {
         $this->formatMessage($message, Logger::DEBUG, $context = [], $extra = []);
@@ -62,6 +68,8 @@ class BuffLog {
             "context"   => $context,
             "extra"     => $extra
         ];
+
+        return $output;
     }
 
     private function createLogger()
