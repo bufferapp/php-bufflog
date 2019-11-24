@@ -76,6 +76,9 @@ class BuffLog {
 
     private static function createLogger()
     {
+        // @TODO: We could potentially use the Kubernetes downward API to 
+        // define the logger name. This will make it easier for developers 
+        // to read and friendlier to identify where come the logs at a glance
         self::$logger = new Logger('php-bufflog');
         $handler = new MonologStreamHandler('php://stdout');
 
