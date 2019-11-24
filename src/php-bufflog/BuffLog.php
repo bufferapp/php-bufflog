@@ -26,7 +26,6 @@ class BuffLog {
         $this->createLogger();
     }
 
-
     public function debug($message)
     {
         $logOutput = $this->formatLog($message, Logger::DEBUG, $context = [], $extra = []);
@@ -44,7 +43,6 @@ class BuffLog {
         $logOutput = $this->formatLog($message, Logger::WARNING, $context = [], $extra = []);
         $this->getLogger()->warn($logOutput);
     }
-
 
     public function error($message)
     {
