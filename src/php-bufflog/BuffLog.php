@@ -29,37 +29,37 @@ class BuffLog {
 
     public function debug($message)
     {
-        $this->formatMessage($message, Logger::DEBUG, $context = [], $extra = []);
-        $this->getLogger()->debug($message);
+        $logOutput = $this->formatLog($message, Logger::DEBUG, $context = [], $extra = []);
+        $this->getLogger()->debug($logOutput);
     }
 
     public function info($message)
     {
-        $this->formatMessage($message, Logger::INFO, $context = [], $extra = []);
-        $this->getLogger()->info($message);
+        $logOutput = $this->formatLog($message, Logger::INFO, $context = [], $extra = []);
+        $this->getLogger()->info($logOutput);
     }
 
     public function warn($message)
     {
-        $this->formatMessage($message, Logger::WARNING, $context = [], $extra = []);
-        $this->getLogger()->warn($message);
+        $logOutput = $this->formatLog($message, Logger::WARNING, $context = [], $extra = []);
+        $this->getLogger()->warn($logOutput);
     }
 
 
     public function error($message)
     {
-        $this->formatMessage($message, Logger::ERROR, $context = [], $extra = []);
-        $this->getLogger()->error($message);
+        $logOutput = $this->formatLog($message, Logger::ERROR, $context = [], $extra = []);
+        $this->getLogger()->error($logOutput);
     }
 
     // @TODO: That one might could also create an alert in Datadog?
     public function critical($message)
     {
-        $this->formatMessage($message, Logger::CRITICAL, $context = [], $extra = []);
-        $this->getLogger()->critical($message);
+        $logOutput = $this->formatLog($message, Logger::CRITICAL, $context = [], $extra = []);
+        $this->getLogger()->critical($logOutput);
     }
 
-    private function formatMessage($message, $level, $context = [], $extra = [])
+    private function formatLog($message, $level, $context = [], $extra = [])
     {
         $output = [
             "message"   => $message,
