@@ -59,6 +59,8 @@ class BuffLog {
             "message"   => $message,
             "level"     => $level,
             "datetime"  => date(\DateTime::ATOM),
+            // we could use timestamp if we need ms precision (but it isn't readable) https://docs.datadoghq.com/logs/processing/#reserved-attributes
+            // 'timestamp' => round(microtime(true) * 1000),
             "context"   => $context,
             "extra"     => $extra
         ];
@@ -66,7 +68,7 @@ class BuffLog {
         try {
             $output = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
-            error_log("can't log your message");
+            error_log("can't json_encode your message");
         }
 
         return $output;
