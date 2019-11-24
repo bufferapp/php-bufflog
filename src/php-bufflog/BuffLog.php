@@ -28,16 +28,16 @@ class BuffLog {
         self::getLogger()->debug($logOutput);
     }
 
-    public function info($message)
+    public static function info($message)
     {
-        $logOutput = $this->formatLog($message, Logger::INFO, $context = [], $extra = []);
-        $this->getLogger()->info($logOutput);
+        $logOutput = self::formatLog($message, Logger::INFO, $context = [], $extra = []);
+        self::getLogger()->info($logOutput);
     }
 
-    public function warn($message)
+    public static function warn($message)
     {
-        $logOutput = $this->formatLog($message, Logger::WARNING, $context = [], $extra = []);
-        $this->getLogger()->warn($logOutput);
+        $logOutput = self::formatLog($message, Logger::WARNING, $context = [], $extra = []);
+        self::getLogger()->warn($logOutput);
     }
 
     public static function error($message)
@@ -47,10 +47,10 @@ class BuffLog {
     }
 
     // @TODO: That one might could also create an alert in Datadog?
-    public function critical($message)
+    public static function critical($message)
     {
-        $logOutput = $this->formatLog($message, Logger::CRITICAL, $context = [], $extra = []);
-        $this->getLogger()->critical($logOutput);
+        $logOutput = self::formatLog($message, Logger::CRITICAL, $context = [], $extra = []);
+        self::getLogger()->critical($logOutput);
     }
 
     private function formatLog($message, $level, $context = [], $extra = [])
