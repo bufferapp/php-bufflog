@@ -1,5 +1,6 @@
 <?php
 namespace Buffer;
+require_once('../../vendor/autoload.php');
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler as MonologStreamHandler;
@@ -19,17 +20,12 @@ use Monolog\Handler\StreamHandler as MonologStreamHandler;
 
 class BuffLog {
 
-    private $logger;
+    private static $logger = null;
 
-    public function __construct()
+    public static function debug($message)
     {
-        $this->createLogger();
-    }
-
-    public function debug($message)
-    {
-        $logOutput = $this->formatLog($message, Logger::DEBUG, $context = [], $extra = []);
-        $this->getLogger()->debug($logOutput);
+        $logOutput = self::formatLog($message, Logger::DEBUG, $context = [], $extra = []);
+        self::getLogger()->debug($logOutput);
     }
 
     public function info($message)
@@ -44,10 +40,10 @@ class BuffLog {
         $this->getLogger()->warn($logOutput);
     }
 
-    public function error($message)
+    public static function error($message)
     {
-        $logOutput = $this->formatLog($message, Logger::ERROR, $context = [], $extra = []);
-        $this->getLogger()->error($logOutput);
+        $logOutput = self::formatLog($message, Logger::ERROR, $context = [], $extra = []);
+        self::getLogger()->error($logOutput);
     }
 
     // @TODO: That one might could also create an alert in Datadog?
@@ -67,26 +63,32 @@ class BuffLog {
             "extra"     => $extra
         ];
 
+        try {
+            $output = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            error_log("can't log your message");
+        }
+
         return $output;
     }
 
-    private function createLogger()
+    private static function createLogger()
     {
-        $logger = new Logger('php-bufflog');
-        $handler = new MonologStreamHandler('php://stdout', Logger::INFO);
+        self::$logger = new Logger('php-bufflog');
+        $handler = new MonologStreamHandler('php://stdout');
 
-        $logger->pushHandler($handler);
-
-        return $logger;
+        self::$logger->pushHandler($handler);
+        return self::$logger;
     }
 
-    private function getLogger()
+    public static function getLogger()
     {
-      if (!isset($this->logger)) {
-        $this->logger = $this->createLogger();
+      if (!isset(self::$logger)) {
+        echo "Initializing logger\n";
+        self::createLogger();
       }
 
-      return $this->logger;
+      return self::$logger;
     }
 
 }
