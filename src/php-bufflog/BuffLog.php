@@ -84,6 +84,13 @@ class BuffLog {
 
     private function formatLog($message, $level, $context = [], $extra = [])
     {
+        // Add traces information to logs to be able correlate with APM
+        $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
+        $context['dd'] = [
+            "trace_id" => $ddTraceSpan->getTraceId(),
+            "span_id"  => $ddTraceSpan->getSpanId()
+        ];
+
         $output = [
             "message"   => $message,
             "level"     => $level,
