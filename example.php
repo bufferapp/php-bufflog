@@ -7,7 +7,7 @@ Bufflog::debug("I am a debug");
 Bufflog::debug("I am a debug with context", ["my key" => " my value"]);
 
 Bufflog::info("I am an info");
-Bufflog::debug("I am a info with context", ["my key" => " my value"]);
+Bufflog::info("I am a info with context", ["my key" => " my value"]);
 
 Bufflog::warn("I am a warning");
 Bufflog::warn("I am a warning", ["duration" => "40ms"]);
@@ -17,3 +17,14 @@ Bufflog::error("I am an error", ["mean" => "70"]);
 
 Bufflog::critical("I am critical information!");
 Bufflog::critical("I am critical information!", ["user" => "betrand"]);
+
+Bufflog::critical("I'm critical log, here some extra fancy informations", 
+                    [
+                        "duration" => "40ms",
+                        "services_related" => [
+                            "Twitter",
+                            "Facebook",
+                            "Instagram"
+                        ]
+                    ]
+                );

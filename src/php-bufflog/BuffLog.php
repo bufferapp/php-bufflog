@@ -22,34 +22,34 @@ class BuffLog {
 
     private static $logger = null;
 
-    public static function debug($message)
+    public static function debug($message, $context = [], $extra = [])
     {
-        $logOutput = self::formatLog($message, Logger::DEBUG, $context = [], $extra = []);
+        $logOutput = self::formatLog($message, Logger::DEBUG, $context, $extra);
         self::getLogger()->debug($logOutput);
     }
 
-    public static function info($message)
+    public static function info($message, $context = [], $extra = [])
     {
-        $logOutput = self::formatLog($message, Logger::INFO, $context = [], $extra = []);
+        $logOutput = self::formatLog($message, Logger::INFO, $context, $extra);
         self::getLogger()->info($logOutput);
     }
 
-    public static function warn($message)
+    public static function warn($message, $context = [], $extra = [])
     {
-        $logOutput = self::formatLog($message, Logger::WARNING, $context = [], $extra = []);
+        $logOutput = self::formatLog($message, Logger::WARNING, $context, $extra);
         self::getLogger()->warn($logOutput);
     }
 
-    public static function error($message)
+    public static function error($message, $context = [], $extra = [])
     {
-        $logOutput = self::formatLog($message, Logger::ERROR, $context = [], $extra = []);
+        $logOutput = self::formatLog($message, Logger::ERROR, $context, $extra);
         self::getLogger()->error($logOutput);
     }
 
     // @TODO: That one might could also create an alert in Datadog?
-    public static function critical($message)
+    public static function critical($message, $context = [], $extra = [])
     {
-        $logOutput = self::formatLog($message, Logger::CRITICAL, $context = [], $extra = []);
+        $logOutput = self::formatLog($message, Logger::CRITICAL, $context, $extra);
         self::getLogger()->critical($logOutput);
     }
 
