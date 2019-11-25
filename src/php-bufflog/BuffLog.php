@@ -118,10 +118,9 @@ class BuffLog {
     private static function setVerbosity()
     {
         $envVerbosity = getenv("LOG_VERBOSITY");
-        if ($envVerbosity !== FALSE && array_key_exists($envVerbosity, self::$verbosityList )) {
-            self::$currentVerbosity = getenv("LOG_VERBOSITY");
+        if ($envVerbosity !== FALSE && array_key_exists($envVerbosity, self::$verbosityList)) {
+            self::$currentVerbosity = self::$verbosityList[$envVerbosity];
         }
-        echo "Log verbosity set to " . self::$verbosity;
     }
 
     public static function getLogger()
