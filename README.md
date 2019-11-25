@@ -24,7 +24,7 @@ use Buffer\Bufflog;
 
 Bufflog::debug("I am a debug");
 Bufflog::info("I am an info");
-Bufflog::warn("I am a warning");
+Bufflog::warning("I am a warning");
 Bufflog::error("I am an error");
 Bufflog::critical("I am a warning");
 ```
@@ -33,7 +33,7 @@ If you wish add more context in your logs,
 ```php
 Bufflog::debug("some context", ["my key" => " my value"]);
 Bufflog::info("I am a info with context", ["my key" => " my value"]);
-Bufflog::warn("I am a warning", ["duration" => "40ms"]);
+Bufflog::warning("I am a warning", ["duration" => "40ms"]);
 
 Bufflog::critical("I'm critical log, here some extra fancy informations",
                     [

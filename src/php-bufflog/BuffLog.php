@@ -52,7 +52,7 @@ class BuffLog {
         self::getLogger()->info($logOutput);
     }
 
-    public static function warn($message, $context = [], $extra = [])
+    public static function warning($message, $context = [], $extra = [])
     {
         self::setVerbosity();
         if (self::$currentVerbosity > Logger::WARNING) {

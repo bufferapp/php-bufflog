@@ -10,8 +10,8 @@ Bufflog::debug("I am a debug with context", ["my key" => " my value"]);
 Bufflog::info("I am an info");
 Bufflog::info("I am a info with context", ["my key" => " my value"]);
 
-Bufflog::warn("I am a warning");
-Bufflog::warn("I am a warning", ["duration" => "40ms"]);
+Bufflog::warning("I am a warning");
+Bufflog::warning("I am a warning", ["duration" => "40ms"]);
 
 Bufflog::error("I am an error");
 Bufflog::error("I am an error", ["mean" => "70"]);
