@@ -47,10 +47,3 @@ Bufflog::critical("I'm critical log, here some extra fancy informations",
                 );
 
 ```
-
-## Install the project
-
-```
-# This will install all the dependencies this project needs
-composer install
-```
