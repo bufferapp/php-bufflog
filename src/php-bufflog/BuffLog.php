@@ -21,27 +21,55 @@ use Monolog\Handler\StreamHandler as MonologStreamHandler;
 class BuffLog {
 
     private static $logger = null;
+    private static $currentVerbosity = Logger::WARNING;
+    private static $verbosityList = [
+        "DEBUG" =>      Logger::DEBUG,
+        "INFO" =>       Logger::INFO,
+        "WARNING" =>    Logger::WARNING,
+        "ERROR" =>      Logger::ERROR,
+        "CRITICAL" =>   Logger::CRITICAL
+    ];
 
     public static function debug($message, $context = [], $extra = [])
     {
+        self::setVerbosity();
+        if (self::$currentVerbosity > Logger::DEBUG) {
+            return;
+        }
+
         $logOutput = self::formatLog($message, Logger::DEBUG, $context, $extra);
         self::getLogger()->debug($logOutput);
     }
 
     public static function info($message, $context = [], $extra = [])
     {
+        self::setVerbosity();
+        if (self::$currentVerbosity > Logger::INFO) {
+            return;
+        }
+
         $logOutput = self::formatLog($message, Logger::INFO, $context, $extra);
         self::getLogger()->info($logOutput);
     }
 
     public static function warn($message, $context = [], $extra = [])
     {
+        self::setVerbosity();
+        if (self::$currentVerbosity > Logger::WARNING) {
+            return;
+        }
+
         $logOutput = self::formatLog($message, Logger::WARNING, $context, $extra);
         self::getLogger()->warn($logOutput);
     }
 
     public static function error($message, $context = [], $extra = [])
     {
+        self::setVerbosity();
+        if (self::$currentVerbosity > Logger::ERROR) {
+            return;
+        }
+
         $logOutput = self::formatLog($message, Logger::ERROR, $context, $extra);
         self::getLogger()->error($logOutput);
     }
@@ -49,6 +77,7 @@ class BuffLog {
     // @TODO: That one might could also create an alert in Datadog?
     public static function critical($message, $context = [], $extra = [])
     {
+        self::setVerbosity();
         $logOutput = self::formatLog($message, Logger::CRITICAL, $context, $extra);
         self::getLogger()->critical($logOutput);
     }
@@ -84,6 +113,15 @@ class BuffLog {
 
         self::$logger->pushHandler($handler);
         return self::$logger;
+    }
+
+    private static function setVerbosity()
+    {
+        $envVerbosity = getenv("LOG_VERBOSITY");
+        if ($envVerbosity !== FALSE && array_key_exists($envVerbosity, self::$verbosityList )) {
+            self::$currentVerbosity = getenv("LOG_VERBOSITY");
+        }
+        echo "Log verbosity set to " . self::$verbosity;
     }
 
     public static function getLogger()
