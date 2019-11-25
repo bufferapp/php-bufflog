@@ -15,7 +15,6 @@ You can install the bindings via [Composer](http://getcomposer.org/). Run the fo
 composer require bufferapp/php-bufflog
 ```
 
-
 ## Usage
 As simple as...
 
@@ -45,5 +44,17 @@ Bufflog::critical("I'm critical log, here some extra fancy informations",
                         ]
                     ]
                 );
-
 ```
+
+## Log verbosity levels
+
+By default, only logs with the WARNING level are output. 
+If you wish to see more logs, simply set the `LOG_VERBOSITY` to the desired level. Here the list with their level and their use case:
+
+| Levels  | Use case  | Examples  |
+|:-:|---|---|
+| DEBUG  |   |   |
+| INFO |   |   |
+| WARNING |   |   |
+| ERROR |   |   |
+| CRITICAL  |   |   |
