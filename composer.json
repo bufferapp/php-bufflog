@@ -1,5 +1,7 @@
 {
+    "name": "bufferapp/php-bufflog",
     "require": {
         "monolog/monolog": "1.25.*"
-    }
+    },
+    "version": "0.1.0"
 }
