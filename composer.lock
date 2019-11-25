@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "235bca0d64a0b619b20276ff3648a0b0",
+    "content-hash": "5a6e96837ffdc1dd6a5b19cca68f79c5",
     "packages": [
         {
             "name": "monolog/monolog",
@@ -132,12 +132,109 @@
             "time": "2019-11-01T11:05:21+00:00"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "datadog/dd-trace",
+            "version": "0.34.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DataDog/dd-trace-php.git",
+                "reference": "14d24b6c329a9e17facd37ee9465afc443f865da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DataDog/dd-trace-php/zipball/14d24b6c329a9e17facd37ee9465afc443f865da",
+                "reference": "14d24b6c329a9e17facd37ee9465afc443f865da",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": "~5.4.0 || ~5.6.0 || ^7.0"
+            },
+            "require-dev": {
+                "g1a/composer-test-scenarios": "~3.0",
+                "mockery/mockery": "*",
+                "phpunit/phpunit": "^4",
+                "squizlabs/php_codesniffer": "^3.3.0",
+                "symfony/process": "*"
+            },
+            "type": "library",
+            "extra": {
+                "scenarios": {
+                    "elasticsearch1": {
+                        "require": {
+                            "elasticsearch/elasticsearch": "1.2.*"
+                        },
+                        "scenario-options": {
+                            "create-lockfile": false
+                        }
+                    },
+                    "guzzle5": {
+                        "require": {
+                            "guzzlehttp/guzzle": "~5.0"
+                        },
+                        "scenario-options": {
+                            "create-lockfile": false
+                        }
+                    },
+                    "guzzle6": {
+                        "require": {
+                            "guzzlehttp/guzzle": "~6.0"
+                        },
+                        "scenario-options": {
+                            "create-lockfile": false
+                        }
+                    },
+                    "predis1": {
+                        "require": {
+                            "predis/predis": "^1.1"
+                        },
+                        "scenario-options": {
+                            "create-lockfile": false
+                        }
+                    }
+                },
+                "scenario-options": {
+                    "dependency-licenses": false
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "DDTrace\\": "./src/DDTrace/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "José Carlos Chávez",
+                    "email": "jcchavezs@gmail.com"
+                },
+                {
+                    "name": "DataDog",
+                    "email": "dev@datadoghq.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP APM Client",
+            "keywords": [
+                "DataDog",
+                "php",
+                "tracing"
+            ],
+            "time": "2019-10-29T17:16:09+00:00"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.1"
+    },
     "platform-dev": []
 }
