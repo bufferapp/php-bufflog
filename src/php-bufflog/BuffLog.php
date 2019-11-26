@@ -30,59 +30,59 @@ class BuffLog {
         "CRITICAL" =>   Logger::CRITICAL
     ];
 
-    public static function debug($message, $context = [], $extra = [])
+    public static function debug($message, $context = [])
     {
         self::setVerbosity();
         if (self::$currentVerbosity > Logger::DEBUG) {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::DEBUG, $context, $extra);
+        $logOutput = self::formatLog($message, Logger::DEBUG, $context);
         self::getLogger()->debug($logOutput);
     }
 
-    public static function info($message, $context = [], $extra = [])
+    public static function info($message, $context = [])
     {
         self::setVerbosity();
         if (self::$currentVerbosity > Logger::INFO) {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::INFO, $context, $extra);
+        $logOutput = self::formatLog($message, Logger::INFO, $context);
         self::getLogger()->info($logOutput);
     }
 
-    public static function warning($message, $context = [], $extra = [])
+    public static function warning($message, $context = [])
     {
         self::setVerbosity();
         if (self::$currentVerbosity > Logger::WARNING) {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::WARNING, $context, $extra);
+        $logOutput = self::formatLog($message, Logger::WARNING, $context);
         self::getLogger()->warn($logOutput);
     }
 
-    public static function error($message, $context = [], $extra = [])
+    public static function error($message, $context = [])
     {
         self::setVerbosity();
         if (self::$currentVerbosity > Logger::ERROR) {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::ERROR, $context, $extra);
+        $logOutput = self::formatLog($message, Logger::ERROR, $context);
         self::getLogger()->error($logOutput);
     }
 
     // @TODO: That one might could also create an alert in Datadog?
-    public static function critical($message, $context = [], $extra = [])
+    public static function critical($message, $context = [])
     {
         self::setVerbosity();
-        $logOutput = self::formatLog($message, Logger::CRITICAL, $context, $extra);
+        $logOutput = self::formatLog($message, Logger::CRITICAL, $context);
         self::getLogger()->critical($logOutput);
     }
 
-    private function formatLog($message, $level, $context = [], $extra = [])
+    private function formatLog($message, $level, $context = [])
     {
         // Add traces information to logs to be able correlate with APM
         $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
@@ -97,8 +97,7 @@ class BuffLog {
             "datetime"  => date(\DateTime::ATOM),
             // we could use timestamp if we need ms precision (but it isn't readable) https://docs.datadoghq.com/logs/processing/#reserved-attributes
             // 'timestamp' => round(microtime(true) * 1000),
-            "context"   => $context,
-            "extra"     => $extra
+            "context"   => $context
         ];
 
         try {
