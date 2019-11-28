@@ -135,15 +135,6 @@ class BuffLog {
         });
     }
 
-    private static function formatLog()
-    {
-        try {
-            $output = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        } catch (Exception $e) {
-            error_log("can't json_encode your message");
-        }
-    }
-
     private static function setVerbosity()
     {
         $envVerbosity = getenv("LOG_VERBOSITY");
