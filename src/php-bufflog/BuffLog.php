@@ -113,7 +113,7 @@ class BuffLog {
     {
         // This should probably implemented as a Monolog Processor
         // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
-        $self::getLogger()->pushProcessor(function ($record) {
+        self::getLogger()->pushProcessor(function ($record) {
 
             // We should grab any Buffer information useful when available
             // Need to check with the Core team: accountID / userID / profileID
