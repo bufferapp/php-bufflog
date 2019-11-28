@@ -2,7 +2,7 @@
 namespace Buffer;
 require_once('vendor/autoload.php');
 
-use Monolog\Logger;
+use Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
 
 /*
@@ -40,7 +40,7 @@ class BuffLog {
 	static public function getLogger()
 	{
 		if (! self::$instance) {
-			self::configureInstance();
+            self::configureInstance();
 		}
 		return self::$instance;
 	}
@@ -54,62 +54,46 @@ class BuffLog {
         $handler = new StreamHandler('php://stdout');
         $handler->setFormatter( new \Monolog\Formatter\JsonFormatter() );
         $logger->pushHandler($handler);
-
         self::$instance = $logger;
 	}
 
-    public static function debug($message, $context = [])
+    // This will be called when a static method in the class doesn't exists
+    public static function __callStatic($methodName, $args)
     {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::DEBUG) {
-            return;
+        $whitelistOutputMethods = ["debug", 'info', 'notice', 'warning', 'error', 'critical'];
+        $whitelistExtraMethods = [];
+
+        if (method_exists(self::getLogger(), $methodName)) {
+
+            if (in_array($methodName, $whitelistOutputMethods)) {
+
+                // @TODO: need to make sure we "output" only the correct level of log
+                //    old version looked like:
+                //     self::setVerbosity();
+                //     if (self::$currentVerbosity > Logger::WARNING) {
+                //         return;
+                //     }
+
+                self::enrichLog();
+                self::getLogger()->$methodName($args[0], isset($args[1]) ? $args[1] : []);
+
+            } elseif (in_array($methodName, $whitelistExtraMethods)) {
+
+                // this might be tricky. we do not know how many arguments the dev will call.
+                // Might have mutltiple solutions (counting/varargs...), which one would be the right one?
+                // self::getLogger()->$methodName($args[0]);
+
+            } else {
+
+                error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog repository to allow it");
+
+            }
+        } else {
+            error_log("BuffLog::$methodName() does not exist");
         }
-        self::processLog();
-        self::getLogger()->addDebug($message, $context);
     }
 
-    public static function info($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::INFO) {
-            return;
-        }
-
-        self::processLog();
-        self::getLogger()->addInfo($message, $context);
-    }
-
-    public static function warning($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::WARNING) {
-            return;
-        }
-
-        self::processLog();
-        self::getLogger()->addWarning($message, $context);
-    }
-
-    public static function error($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::ERROR) {
-            return;
-        }
-
-        self::processLog();
-        self::getLogger()->addError($message, $context);
-    }
-
-    // @TODO: That one might could also create an alert in Datadog?
-    public static function critical($message, $context = [])
-    {
-        self::setVerbosity();
-        self::processLog();
-        self::getLogger()->addCritical($message, $context);
-    }
-
-    private function processLog()
+    private function enrichLog()
     {
         // This should probably implemented as a Monolog Processor
         // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
