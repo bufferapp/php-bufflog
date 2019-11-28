@@ -3,7 +3,7 @@ namespace Buffer;
 require_once('vendor/autoload.php');
 
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler as MonologStreamHandler;
+use Monolog\Handler\StreamHandler;
 
 /*
     Level of logs we use:
@@ -30,15 +30,42 @@ class BuffLog {
         "CRITICAL" =>   Logger::CRITICAL
     ];
 
+    protected static $instance;
+
+	/**
+	 * Method to return the Monolog instance
+	 *
+	 * @return \Monolog\Logger
+	 */
+	static public function getLogger()
+	{
+		if (! self::$instance) {
+			self::configureInstance();
+		}
+		return self::$instance;
+	}
+
+	protected static function configureInstance()
+	{
+        // @TODO: We could potentially use the Kubernetes downward API to
+        // define the logger name. This will make it easier for developers
+        // to read and friendlier to identify where come the logs at a glance
+        $logger = new Logger('php-bufflog');
+        $handler = new StreamHandler('php://stdout');
+        $handler->setFormatter( new \Monolog\Formatter\JsonFormatter() );
+        $logger->pushHandler($handler);
+
+        self::$instance = $logger;
+	}
+
     public static function debug($message, $context = [])
     {
         self::setVerbosity();
         if (self::$currentVerbosity > Logger::DEBUG) {
             return;
         }
-
-        $logOutput = self::formatLog($message, Logger::DEBUG, $context);
-        self::getLogger()->debug($logOutput);
+        self::processLog();
+        self::getLogger()->addDebug($message, $context);
     }
 
     public static function info($message, $context = [])
@@ -48,8 +75,8 @@ class BuffLog {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::INFO, $context);
-        self::getLogger()->info($logOutput);
+        self::processLog();
+        self::getLogger()->addInfo($message, $context);
     }
 
     public static function warning($message, $context = [])
@@ -59,8 +86,8 @@ class BuffLog {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::WARNING, $context);
-        self::getLogger()->warn($logOutput);
+        self::processLog();
+        self::getLogger()->addWarning($message, $context);
     }
 
     public static function error($message, $context = [])
@@ -70,55 +97,51 @@ class BuffLog {
             return;
         }
 
-        $logOutput = self::formatLog($message, Logger::ERROR, $context);
-        self::getLogger()->error($logOutput);
+        self::processLog();
+        self::getLogger()->addError($message, $context);
     }
 
     // @TODO: That one might could also create an alert in Datadog?
     public static function critical($message, $context = [])
     {
         self::setVerbosity();
-        $logOutput = self::formatLog($message, Logger::CRITICAL, $context);
-        self::getLogger()->critical($logOutput);
+        self::processLog();
+        self::getLogger()->addCritical($message, $context);
     }
 
-    private function formatLog($message, $level, $context = [])
+    private function processLog()
     {
-        // Add traces information to logs to be able correlate with APM
-        $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
-        $context['dd'] = [
-            "trace_id" => $ddTraceSpan->getTraceId(),
-            "span_id"  => $ddTraceSpan->getSpanId()
-        ];
+        // This should probably implemented as a Monolog Processor
+        // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
+        $self::getLogger()->pushProcessor(function ($record) {
 
-        $output = [
-            "message"   => $message,
-            "level"     => $level,
-            "datetime"  => date(\DateTime::ATOM),
-            // we could use timestamp if we need ms precision (but it isn't readable) https://docs.datadoghq.com/logs/processing/#reserved-attributes
-            // 'timestamp' => round(microtime(true) * 1000),
-            "context"   => $context
-        ];
+            // We should grab any Buffer information useful when available
+            // Need to check with the Core team: accountID / userID / profileID
+            // $user = Buffer/Core::getCurrentUser();
+            // That should look like:
+            // $record['context']['user'] = array(
+            //     'accountID' => $user->getAccountID(),
+            //     'userID' => $user->getUserID(),
+            //     'profileID' => $user->getProfileID()
+            // );
 
+            // Add traces information to logs to be able correlate with APM
+            $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
+            $record['context']['dd'] = [
+                "trace_id" => $ddTraceSpan->getTraceId(),
+                "span_id"  => $ddTraceSpan->getSpanId()
+            ];
+            return $record;
+        });
+    }
+
+    private static function formatLog()
+    {
         try {
             $output = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
             error_log("can't json_encode your message");
         }
-
-        return $output;
-    }
-
-    private static function createLogger()
-    {
-        // @TODO: We could potentially use the Kubernetes downward API to 
-        // define the logger name. This will make it easier for developers 
-        // to read and friendlier to identify where come the logs at a glance
-        self::$logger = new Logger('php-bufflog');
-        $handler = new MonologStreamHandler('php://stdout');
-
-        self::$logger->pushHandler($handler);
-        return self::$logger;
     }
 
     private static function setVerbosity()
@@ -127,16 +150,6 @@ class BuffLog {
         if ($envVerbosity !== FALSE && array_key_exists($envVerbosity, self::$verbosityList)) {
             self::$currentVerbosity = self::$verbosityList[$envVerbosity];
         }
-    }
-
-    public static function getLogger()
-    {
-      if (!isset(self::$logger)) {
-        echo "Initializing logger\n";
-        self::createLogger();
-      }
-
-      return self::$logger;
     }
 
 }
