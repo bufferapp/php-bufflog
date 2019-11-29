@@ -19,7 +19,7 @@ class BuffLog {
     ];
 
     private static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
-    private static $extraAllowedMethods = ['getName'];
+    private static $extraAllowedMethods = ['getName', 'pushHandler', 'setHandlers', 'getHandlers', 'pushProcessor', 'getProcessors'];
 
 	/**
 	 * Method to return the Monolog instance
