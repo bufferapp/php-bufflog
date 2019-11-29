@@ -29,3 +29,5 @@ Bufflog::critical("I'm critical log, here some extra fancy informations",
                         ]
                     ]
                 );
+
+echo(BuffLog::getName());

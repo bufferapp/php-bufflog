@@ -5,24 +5,12 @@ require_once('vendor/autoload.php');
 use Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
 
-/*
-    Level of logs we use:
-
-    This level require manual action to appear in Datadog Logs
-    Logger::DEBUG
-    Logger::INFO
-
-    Everything at this level appears by default in Datadog Logs
-    Logger::WARNING
-    Logger::ERROR
-    Logger::CRITICAL
-*/
-
 class BuffLog {
 
-    private static $logger = null;
-    private static $currentVerbosity = Logger::WARNING;
-    private static $verbosityList = [
+    protected   static $instance;
+    private     static $logger = null;
+    private     static $currentVerbosity = Logger::WARNING;
+    private     static $verbosityList = [
         "DEBUG" =>      Logger::DEBUG,
         "INFO" =>       Logger::INFO,
         "WARNING" =>    Logger::WARNING,
@@ -30,7 +18,8 @@ class BuffLog {
         "CRITICAL" =>   Logger::CRITICAL
     ];
 
-    protected static $instance;
+    private static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
+    private static $extraAllowedMethods = ['getName'];
 
 	/**
 	 * Method to return the Monolog instance
@@ -41,7 +30,8 @@ class BuffLog {
 	{
 		if (! self::$instance) {
             self::configureInstance();
-		}
+
+        }
 		return self::$instance;
 	}
 
@@ -60,33 +50,27 @@ class BuffLog {
     // This will be called when a static method in the class doesn't exists
     public static function __callStatic($methodName, $args)
     {
-        $whitelistOutputMethods = ["debug", 'info', 'notice', 'warning', 'error', 'critical'];
-        $whitelistExtraMethods = [];
-
         if (method_exists(self::getLogger(), $methodName)) {
 
-            if (in_array($methodName, $whitelistOutputMethods)) {
+            if (in_array($methodName, array_merge(self::$logOutputMethods, self::$extraAllowedMethods))) {
 
-                // @TODO: need to make sure we "output" only the correct level of log
-                //    old version looked like:
-                //     self::setVerbosity();
-                //     if (self::$currentVerbosity > Logger::WARNING) {
-                //         return;
-                //     }
+                if (in_array($methodName, self::$logOutputMethods)) {
 
-                self::enrichLog();
-                self::getLogger()->$methodName($args[0], isset($args[1]) ? $args[1] : []);
+                    // @TODO: need to make sure we "output" only the correct level of log
+                    //    old version looked like:
+                    //     self::setVerbosity();
+                    //     if (self::$currentVerbosity > Logger::WARNING) {
+                    //         return;
+                    //     }
 
-            } elseif (in_array($methodName, $whitelistExtraMethods)) {
-
-                // this might be tricky. we do not know how many arguments the dev will call.
-                // Might have mutltiple solutions (counting/varargs...), which one would be the right one?
-                // self::getLogger()->$methodName($args[0]);
+                    self::enrichLog();
+                }
+                // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
+                return call_user_func_array(array(self::getLogger(), $methodName), $args);
 
             } else {
 
-                error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog repository to allow it");
-
+                error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it");
             }
         } else {
             error_log("BuffLog::$methodName() does not exist");
