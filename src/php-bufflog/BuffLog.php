@@ -2,27 +2,15 @@
 namespace Buffer;
 require_once('vendor/autoload.php');
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler as MonologStreamHandler;
-
-/*
-    Level of logs we use:
-
-    This level require manual action to appear in Datadog Logs
-    Logger::DEBUG
-    Logger::INFO
-
-    Everything at this level appears by default in Datadog Logs
-    Logger::WARNING
-    Logger::ERROR
-    Logger::CRITICAL
-*/
+use Monolog\Logger as Logger;
+use Monolog\Handler\StreamHandler;
 
 class BuffLog {
 
-    private static $logger = null;
-    private static $currentVerbosity = Logger::WARNING;
-    private static $verbosityList = [
+    protected   static $instance;
+    private     static $logger = null;
+    private     static $currentVerbosity = Logger::WARNING;
+    private     static $verbosityList = [
         "DEBUG" =>      Logger::DEBUG,
         "INFO" =>       Logger::INFO,
         "WARNING" =>    Logger::WARNING,
@@ -30,95 +18,89 @@ class BuffLog {
         "CRITICAL" =>   Logger::CRITICAL
     ];
 
-    public static function debug($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::DEBUG) {
-            return;
+    private static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
+    private static $extraAllowedMethods = ['getName', 'pushHandler', 'setHandlers', 'getHandlers', 'pushProcessor', 'getProcessors'];
+
+	/**
+	 * Method to return the Monolog instance
+	 *
+	 * @return \Monolog\Logger
+	 */
+	static public function getLogger()
+	{
+		if (! self::$instance) {
+            self::configureInstance();
+
         }
+		return self::$instance;
+	}
 
-        $logOutput = self::formatLog($message, Logger::DEBUG, $context);
-        self::getLogger()->debug($logOutput);
-    }
-
-    public static function info($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::INFO) {
-            return;
-        }
-
-        $logOutput = self::formatLog($message, Logger::INFO, $context);
-        self::getLogger()->info($logOutput);
-    }
-
-    public static function warning($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::WARNING) {
-            return;
-        }
-
-        $logOutput = self::formatLog($message, Logger::WARNING, $context);
-        self::getLogger()->warn($logOutput);
-    }
-
-    public static function error($message, $context = [])
-    {
-        self::setVerbosity();
-        if (self::$currentVerbosity > Logger::ERROR) {
-            return;
-        }
-
-        $logOutput = self::formatLog($message, Logger::ERROR, $context);
-        self::getLogger()->error($logOutput);
-    }
-
-    // @TODO: That one might could also create an alert in Datadog?
-    public static function critical($message, $context = [])
-    {
-        self::setVerbosity();
-        $logOutput = self::formatLog($message, Logger::CRITICAL, $context);
-        self::getLogger()->critical($logOutput);
-    }
-
-    private function formatLog($message, $level, $context = [])
-    {
-        // Add traces information to logs to be able correlate with APM
-        $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
-        $context['dd'] = [
-            "trace_id" => $ddTraceSpan->getTraceId(),
-            "span_id"  => $ddTraceSpan->getSpanId()
-        ];
-
-        $output = [
-            "message"   => $message,
-            "level"     => $level,
-            "datetime"  => date(\DateTime::ATOM),
-            // we could use timestamp if we need ms precision (but it isn't readable) https://docs.datadoghq.com/logs/processing/#reserved-attributes
-            // 'timestamp' => round(microtime(true) * 1000),
-            "context"   => $context
-        ];
-
-        try {
-            $output = json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        } catch (Exception $e) {
-            error_log("can't json_encode your message");
-        }
-
-        return $output;
-    }
-
-    private static function createLogger()
-    {
-        // @TODO: We could potentially use the Kubernetes downward API to 
-        // define the logger name. This will make it easier for developers 
+	protected static function configureInstance()
+	{
+        // @TODO: We could potentially use the Kubernetes downward API to
+        // define the logger name. This will make it easier for developers
         // to read and friendlier to identify where come the logs at a glance
-        self::$logger = new Logger('php-bufflog');
-        $handler = new MonologStreamHandler('php://stdout');
+        $logger = new Logger('php-bufflog');
+        $handler = new StreamHandler('php://stdout');
+        $handler->setFormatter( new \Monolog\Formatter\JsonFormatter() );
+        $logger->pushHandler($handler);
+        self::$instance = $logger;
+	}
 
-        self::$logger->pushHandler($handler);
-        return self::$logger;
+    // This will be called when a static method in the class doesn't exists
+    public static function __callStatic($methodName, $args)
+    {
+        if (method_exists(self::getLogger(), $methodName)) {
+
+            if (in_array($methodName, array_merge(self::$logOutputMethods, self::$extraAllowedMethods))) {
+
+                if (in_array($methodName, self::$logOutputMethods)) {
+
+                    // @TODO: need to make sure we "output" only the correct level of log
+                    //    old version looked like:
+                    //     self::setVerbosity();
+                    //     if (self::$currentVerbosity > Logger::WARNING) {
+                    //         return;
+                    //     }
+
+                    self::enrichLog();
+                }
+                // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
+                return call_user_func_array(array(self::getLogger(), $methodName), $args);
+
+            } else {
+
+                error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it");
+            }
+        } else {
+            error_log("BuffLog::$methodName() does not exist");
+        }
+    }
+
+    private function enrichLog()
+    {
+        // This should probably implemented as a Monolog Processor
+        // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
+        self::getLogger()->pushProcessor(function ($record) {
+
+            // We should grab any Buffer information useful when available
+            // Need to check with the Core team: accountID / userID / profileID
+            // $user = Buffer/Core::getCurrentUser();
+            // That should look like:
+            // $record['context']['user'] = array(
+            //     'accountID' => $user->getAccountID(),
+            //     'userID' => $user->getUserID(),
+            //     'profileID' => $user->getProfileID()
+            // );
+
+            // Add traces information to logs to be able correlate with APM
+            $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
+            $record['context']['dd'] = [
+                "trace_id" => $ddTraceSpan->getTraceId(),
+                "span_id"  => $ddTraceSpan->getSpanId()
+            ];
+            return $record;
+        });
     }
 
     private static function setVerbosity()
@@ -127,16 +109,6 @@ class BuffLog {
         if ($envVerbosity !== FALSE && array_key_exists($envVerbosity, self::$verbosityList)) {
             self::$currentVerbosity = self::$verbosityList[$envVerbosity];
         }
-    }
-
-    public static function getLogger()
-    {
-      if (!isset(self::$logger)) {
-        echo "Initializing logger\n";
-        self::createLogger();
-      }
-
-      return self::$logger;
     }
 
 }
