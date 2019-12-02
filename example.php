@@ -2,7 +2,7 @@
 require_once('./vendor/autoload.php');
 require_once('./src/BuffLog/BuffLog.php');
 
-use Buffer\BuffLog;
+use Buffer\BuffLog\Bufflog;
 
 // putenv("LOG_VERBOSITY=WARNING");
 BuffLog::debug("I am a debug");
