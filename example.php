@@ -1,5 +1,5 @@
 <?php
-require_once('./src/php-bufflog/BuffLog.php');
+require_once('./src/Bufflog/BuffLog.php');
 
 use Buffer\Bufflog;
 
