@@ -12,7 +12,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Buffer\\Bufflog\\": "./src/BuffLog"
+            "Buffer\\BuffLog\\": "./src/BuffLog"
         }
     }
 }
