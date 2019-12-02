@@ -1,5 +1,5 @@
 <?php
-namespace Buffer;
+namespace Buffer\BuffLog;
 require_once('vendor/autoload.php');
 
 use Monolog\Logger as Logger;
