@@ -1,6 +1,5 @@
 <?php
-namespace Buffer\BuffLog;
-require_once('vendor/autoload.php');
+namespace Buffer;
 
 use Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;

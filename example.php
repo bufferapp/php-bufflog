@@ -1,25 +1,26 @@
 <?php
-require_once('./src/Bufflog/BuffLog.php');
+require_once('./vendor/autoload.php');
+require_once('./src/BuffLog/BuffLog.php');
 
-use Buffer\Bufflog;
+use Buffer\BuffLog;
 
 // putenv("LOG_VERBOSITY=WARNING");
-Bufflog::debug("I am a debug");
-Bufflog::debug("I am a debug with context", ["my key" => " my value"]);
+BuffLog::debug("I am a debug");
+BuffLog::debug("I am a debug with context", ["my key" => " my value"]);
 
-Bufflog::info("I am an info");
-Bufflog::info("I am a info with context", ["my key" => " my value"]);
+BuffLog::info("I am an info");
+BuffLog::info("I am a info with context", ["my key" => " my value"]);
 
-Bufflog::warning("I am a warning");
-Bufflog::warning("I am a warning", ["duration" => "40ms"]);
+BuffLog::warning("I am a warning");
+BuffLog::warning("I am a warning", ["duration" => "40ms"]);
 
-Bufflog::error("I am an error");
-Bufflog::error("I am an error", ["mean" => "70"]);
+BuffLog::error("I am an error");
+BuffLog::error("I am an error", ["mean" => "70"]);
 
-Bufflog::criticals("I am criticals information with a typo and you shouldn't see me!");
-Bufflog::critical("I am critical information!", ["user" => "betrand"]);
+BuffLog::criticals("I am criticals information with a typo and you shouldn't see me!");
+BuffLog::critical("I am critical information!", ["user" => "betrand"]);
 
-Bufflog::critical("I'm critical log, here some extra fancy informations", 
+BuffLog::critical("I'm critical log, here some extra fancy informations", 
                     [
                         "duration" => "40ms",
                         "services_related" => [
