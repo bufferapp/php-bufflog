@@ -76,7 +76,7 @@ class BuffLog {
         }
     }
 
-    private function enrichLog()
+    private static function enrichLog()
     {
         // This should probably implemented as a Monolog Processor
         // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
