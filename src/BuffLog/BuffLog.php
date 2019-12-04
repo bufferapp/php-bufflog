@@ -8,14 +8,6 @@ class BuffLog {
 
     protected   static $instance;
     private     static $logger = null;
-    private     static $currentVerbosity = Logger::WARNING;
-    private     static $verbosityList = [
-        "DEBUG" =>      Logger::DEBUG,
-        "INFO" =>       Logger::INFO,
-        "WARNING" =>    Logger::WARNING,
-        "ERROR" =>      Logger::ERROR,
-        "CRITICAL" =>   Logger::CRITICAL
-    ];
 
     private static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
     private static $extraAllowedMethods = ['getName', 'pushHandler', 'setHandlers', 'getHandlers', 'pushProcessor', 'getProcessors'];
@@ -100,14 +92,6 @@ class BuffLog {
             ];
             return $record;
         });
-    }
-
-    private static function setVerbosity()
-    {
-        $envVerbosity = getenv("LOG_VERBOSITY");
-        if ($envVerbosity !== FALSE && array_key_exists($envVerbosity, self::$verbosityList)) {
-            self::$currentVerbosity = self::$verbosityList[$envVerbosity];
-        }
     }
 
 }
