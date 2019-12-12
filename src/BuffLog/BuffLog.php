@@ -84,12 +84,18 @@ class BuffLog {
             //     'profileID' => $user->getProfileID()
             // );
 
-            // Add traces information to logs to be able correlate with APM
-            $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
-            $record['context']['dd'] = [
-                "trace_id" => $ddTraceSpan->getTraceId(),
-                "span_id"  => $ddTraceSpan->getSpanId()
-            ];
+            try {
+                // Add traces information to logs to be able correlate with APM
+                $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
+                $record['context']['dd'] = [
+                    "trace_id" => $ddTraceSpan->getTraceId(),
+                    "span_id"  => $ddTraceSpan->getSpanId()
+                ];
+
+            } catch (Exception $e) {
+                error_log($e->getMessage() . " If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?");
+            }
+
             return $record;
         });
     }
