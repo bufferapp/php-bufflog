@@ -40,7 +40,19 @@ class BuffLog {
         // define the logger name. This will make it easier for developers
         // to read and friendlier to identify where come the logs at a glance
         $logger = new Logger('php-bufflog');
-        $handler = new StreamHandler('php://stdout');
+
+        $logLevelFromEnv = getenv("LOG_LEVEL");
+        $monologLevels = $logger->getLevels();
+        if ($logLevelFromEnv) {
+            // only if the level exists, we change the verbosity level
+            if (key_exists($logLevelFromEnv, $monologLevels)) {
+                self::$verbosityLevel = $monologLevels[$logLevelFromEnv];
+            } else {
+                error_log("LOG_LEVEL {$logLevelFromEnv} is not defined, use one of: " . implode(', ', array_keys($monologLevels)));
+            }
+        }
+
+        $handler = new StreamHandler('php://stdout', self::$verbosityLevel);
         $handler->setFormatter( new \Monolog\Formatter\JsonFormatter() );
         $logger->pushHandler($handler);
         self::$instance = $logger;
@@ -55,10 +67,6 @@ class BuffLog {
 
                 if (in_array($methodName, self::$logOutputMethods)) {
 
-                    if (! self::shouldWriteLogs($methodName)) {
-                        return;
-                    }
-
                     self::enrichLog();
                 }
                 // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
@@ -70,33 +78,6 @@ class BuffLog {
         } else {
             error_log("BuffLog::$methodName() does not exist");
         }
-    }
-
-    private static function setVerbosityLevel()
-    {
-        $logLevelFromEnv = getenv(self::$logLevelEnvVar);
-        $monologLevels = self::getLogger()->getLevels();
-        if ($logLevelFromEnv) {
-            // only if the level exists, we change the verbosity level
-            if (key_exists($logLevelFromEnv, $monologLevels)) {
-                self::$verbosityLevel = $monologLevels[$logLevelFromEnv];
-            } else {
-                error_log("LOG_LEVEL {$logLevelFromEnv} is not defined, use one of: " . implode(', ', array_keys($monologLevels)));
-            }
-        }
-    }
-
-
-    private static function shouldWriteLogs($methodName)
-    {
-        // Optimization: we could move this at the singleton initialization
-        self::setVerbosityLevel();
-
-        if ( self::getLogger()->getLevels()[strtoupper($methodName)] >= self::$verbosityLevel) {
-            return true;
-        }
-
-        return false;
     }
 
     private static function enrichLog()
