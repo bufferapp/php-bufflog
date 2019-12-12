@@ -9,14 +9,16 @@ class BuffLog {
     protected   static $instance;
     private     static $logger = null;
 
-    // we output every logs starting this level
-    // It can be changed with setting an environment
+    // default verbosity starting at this level
     private     static $verbosityLevel = Logger::NOTICE;
 
-    // we can use strtolower(Logger::getLevels()) instead
-    private static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
+    // verbosity can be changed with setting this env var
+    public      static $logLevelEnvVar = "LOG_LEVEL";
 
-    private static $extraAllowedMethods = ['getName', 'pushHandler', 'setHandlers', 'getHandlers', 'pushProcessor', 'getProcessors', 'getLevels'];
+    // we can use strtolower(Logger::getLevels()) instead
+    private     static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
+
+    private     static $extraAllowedMethods = ['getName', 'pushHandler', 'setHandlers', 'getHandlers', 'pushProcessor', 'getProcessors', 'getLevels'];
 
 	/**
 	 * Method to return the Monolog instance
@@ -72,7 +74,7 @@ class BuffLog {
 
     private static function setVerbosityLevel()
     {
-        $logLevelFromEnv = getenv("LOG_LEVEL");
+        $logLevelFromEnv = getenv(self::$logLevelEnvVar);
         $monologLevels = self::getLogger()->getLevels();
         if ($logLevelFromEnv) {
             // only if the level exists, we change the verbosity level
