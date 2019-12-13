@@ -76,7 +76,7 @@ class BuffLog {
                 error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it");
             }
         } else {
-            error_log("BuffLog::$methodName() does not exist");
+            error_log("BuffLog::$methodName() method does not exist");
         }
     }
 
