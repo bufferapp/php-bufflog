@@ -96,7 +96,7 @@ class BuffLog {
             //     'profileID' => $user->getProfileID()
             // );
 
-            // Add traces information to logs to be able correlate with APM
+            // Add traces information to be able to correlate logs with APM
             $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
             $record['context']['dd'] = [
                 "trace_id" => $ddTraceSpan->getTraceId(),
