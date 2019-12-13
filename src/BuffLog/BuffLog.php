@@ -41,14 +41,14 @@ class BuffLog {
         // to read and friendlier to identify where come the logs at a glance
         $logger = new Logger('php-bufflog');
 
-        $logLevelFromEnv = getenv("LOG_LEVEL");
+        $logLevelFromEnv = getenv(self::$logLevelEnvVar);
         $monologLevels = $logger->getLevels();
         if ($logLevelFromEnv) {
             // only if the level exists, we change the verbosity level
             if (key_exists($logLevelFromEnv, $monologLevels)) {
                 self::$verbosityLevel = $monologLevels[$logLevelFromEnv];
             } else {
-                error_log("LOG_LEVEL {$logLevelFromEnv} is not defined, use one of: " . implode(', ', array_keys($monologLevels)));
+                error_log(self::$logLevelEnvVar . "={$logLevelFromEnv} verbosity level does not exists. Please use: " . implode(', ', array_keys($monologLevels)));
             }
         }
 
