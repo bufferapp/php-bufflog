@@ -36,6 +36,12 @@ class BuffLog {
 
 	protected static function configureInstance()
 	{
+
+        if (!class_exists("\DDTrace\GlobalTracer")) {
+            error_log("Tip #1: Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier! :)");
+            error_log("Tip #2: If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?");
+        }
+
         // @TODO: We could potentially use the Kubernetes downward API to
         // define the logger name. This will make it easier for developers
         // to read and friendlier to identify where come the logs at a glance
@@ -105,7 +111,7 @@ class BuffLog {
                 ];
 
             } catch (Exception $e) {
-                error_log($e->getMessage() . " If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?");
+                error_log($e->getMessage() . " Can't add trace to logs. Have you setup the Datadog Tracer extension? If you run a worker have your added the DD_TRACE_CLI_ENABLED env variable?");
             }
 
             return $record;
