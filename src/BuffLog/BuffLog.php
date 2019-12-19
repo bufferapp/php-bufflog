@@ -14,6 +14,9 @@ class BuffLog {
 
     // verbosity can be changed with setting this env var
     public      static $logLevelEnvVar = "LOG_LEVEL";
+    public      static $isDebug = false;
+    public      static $debugKey = "debug";
+    public      static $debugValue = "";
 
     // we can use strtolower(Logger::getLevels()) instead
     private     static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
@@ -49,6 +52,7 @@ class BuffLog {
 
         $logLevelFromEnv = getenv(self::$logLevelEnvVar);
         $monologLevels = $logger->getLevels();
+
         if ($logLevelFromEnv) {
             // only if the level exists, we change the verbosity level
             if (key_exists($logLevelFromEnv, $monologLevels)) {
@@ -57,6 +61,8 @@ class BuffLog {
                 error_log(self::$logLevelEnvVar . "={$logLevelFromEnv} verbosity level does not exists. Please use: " . implode(', ', array_keys($monologLevels)));
             }
         }
+
+        self::checkDebug();
 
         $handler = new StreamHandler('php://stdout', self::$verbosityLevel);
         $handler->setFormatter( new \Monolog\Formatter\JsonFormatter() );
@@ -86,6 +92,18 @@ class BuffLog {
         }
     }
 
+    private static function checkDebug()
+    {
+        if (is_array($_GET) && isset($_GET[self::$debugKey])) {
+            self::$isDebug = true;
+            // we set the lowest level of logs to see everything
+            self::$verbosityLevel = Logger::DEBUG;
+            self::$debugValue = $_GET[self::$debugKey];
+            return true;
+        }
+        return false;
+    }
+
     private static function enrichLog()
     {
         // We should probably implement this as a Monolog Processor
@@ -109,6 +127,10 @@ class BuffLog {
                     "trace_id" => $ddTraceSpan->getTraceId(),
                     "span_id"  => $ddTraceSpan->getSpanId()
                 ];
+
+                if (self::$isDebug) {
+                    $record['context']['debug'] = self::$debugValue;
+                }
 
             } catch (Exception $e) {
                 error_log($e->getMessage() . " Can't add trace to logs. Have you setup the Datadog Tracer extension? If you run a worker have your added the DD_TRACE_CLI_ENABLED env variable?");
