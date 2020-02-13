@@ -103,6 +103,11 @@ class BuffLog {
             // );
 
             try {
+
+                if (class_exists("\DDTrace\GlobalTracer", false) === false) {
+                    throw new \Exception('DDTrace\GlobalTracer can\'t be found. Have you setup the Datadog Tracer extension? If you run cli worker, have you added the DD_TRACE_CLI_ENABLED env variable?');
+                }
+
                 // Add traces information to be able to correlate logs with APM
                 $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
                 $record['context']['dd'] = [
@@ -110,8 +115,9 @@ class BuffLog {
                     "span_id"  => $ddTraceSpan->getSpanId()
                 ];
 
-            } catch (Exception $e) {
-                error_log($e->getMessage() . " Can't add trace to logs. Have you setup the Datadog Tracer extension? If you run a worker have your added the DD_TRACE_CLI_ENABLED env variable?");
+            } catch (\Exception $e) {
+                // we probably will want to make an no-op or it will be too verbose
+                error_log($e->getMessage() . " Traces will not be added in the logs");
             }
 
             return $record;
