@@ -15,6 +15,9 @@ class BuffLog {
     // verbosity can be changed with setting this env var
     public      static $logLevelEnvVar = "LOG_LEVEL";
 
+    // Global Tracer comes with the datadog tracing extension
+    private     static $hasGlobalTracer = false;
+
     // we can use strtolower(Logger::getLevels()) instead
     private     static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
 
@@ -37,8 +40,10 @@ class BuffLog {
 	protected static function configureInstance()
 	{
 
-        if (!class_exists("\DDTrace\GlobalTracer")) {
-            error_log("Tip #1: Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier! :)");
+        if (class_exists("\DDTrace\GlobalTracer")) {
+            self::$hasGlobalTracer = true;
+        } else {
+            error_log("Tip #1: Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier.");
             error_log("Tip #2: If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?");
         }
 
@@ -61,6 +66,36 @@ class BuffLog {
         $handler = new StreamHandler('php://stdout', self::$verbosityLevel);
         $handler->setFormatter( new \Monolog\Formatter\JsonFormatter() );
         $logger->pushHandler($handler);
+
+        // We should probably implement this as a Monolog Processor
+        // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
+        $logger->pushProcessor(function ($record) {
+            // We should grab any Buffer information useful when available
+            // Need to check with the Core team: accountID / userID / profileID
+            // $user = Buffer/Core::getCurrentUser();
+            // That should look like:
+            // $record['context']['user'] = array(
+            //     'accountID' => $user->getAccountID(),
+            //     'userID' => $user->getUserID(),
+            //     'profileID' => $user->getProfileID()
+            // );
+
+            if (self::$hasGlobalTracer) {
+                try {
+                    // Add traces information to be able to correlate logs with APM
+                    $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
+                    $record['context']['dd'] = [
+                        "trace_id" => $ddTraceSpan->getTraceId(),
+                        "span_id"  => $ddTraceSpan->getSpanId()
+                    ];
+
+                } catch (\Exception $e) {
+                    // no-op
+                }
+            }
+            return $record;
+        });
+
         self::$instance = $logger;
 	}
 
@@ -72,56 +107,15 @@ class BuffLog {
             if (in_array($methodName, array_merge(self::$logOutputMethods, self::$extraAllowedMethods))) {
 
                 if (in_array($methodName, self::$logOutputMethods)) {
-
-                    self::enrichLog();
+                    // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
+                    return call_user_func_array(array(self::getLogger(), $methodName), $args);
                 }
-                // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
-                return call_user_func_array(array(self::getLogger(), $methodName), $args);
-
             } else {
                 error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it");
             }
         } else {
             error_log("BuffLog::$methodName() method does not exist");
         }
-    }
-
-    private static function enrichLog()
-    {
-        // We should probably implement this as a Monolog Processor
-        // https://github.com/Seldaek/monolog/tree/master/src/Monolog/Processor
-        self::getLogger()->pushProcessor(function ($record) {
-
-            // We should grab any Buffer information useful when available
-            // Need to check with the Core team: accountID / userID / profileID
-            // $user = Buffer/Core::getCurrentUser();
-            // That should look like:
-            // $record['context']['user'] = array(
-            //     'accountID' => $user->getAccountID(),
-            //     'userID' => $user->getUserID(),
-            //     'profileID' => $user->getProfileID()
-            // );
-
-            try {
-
-                if (class_exists("\DDTrace\GlobalTracer", false) === false) {
-                    throw new \Exception('DDTrace\GlobalTracer can\'t be found. Have you setup the Datadog Tracer extension? If you run cli worker, have you added the DD_TRACE_CLI_ENABLED env variable?');
-                }
-
-                // Add traces information to be able to correlate logs with APM
-                $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
-                $record['context']['dd'] = [
-                    "trace_id" => $ddTraceSpan->getTraceId(),
-                    "span_id"  => $ddTraceSpan->getSpanId()
-                ];
-
-            } catch (\Exception $e) {
-                // we probably will want to make an no-op or it will be too verbose
-                error_log($e->getMessage() . " Traces will not be added in the logs");
-            }
-
-            return $record;
-        });
     }
 
 }
