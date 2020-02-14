@@ -19,22 +19,22 @@ composer require bufferapp/php-bufflog
 As simple as...
 
 ```php
-use Buffer\Bufflog;
+use Buffer\BuffLog\BuffLog;
 
-Bufflog::debug("I am a debug");
-Bufflog::info("I am an info");
-Bufflog::warning("I am a warning");
-Bufflog::error("I am an error");
-Bufflog::critical("I am a warning");
+BuffLog::debug("I am a debug");
+BuffLog::info("I am an info");
+BuffLog::warning("I am a warning");
+BuffLog::error("I am an error");
+BuffLog::critical("I am a warning");
 ```
 
 If you wish add more context in your logs, 
 ```php
-Bufflog::debug("some context", ["my key" => " my value"]);
-Bufflog::info("I am a info with context", ["my key" => " my value"]);
-Bufflog::warning("I am a warning", ["duration" => "40ms"]);
+BuffLog::debug("some context", ["my key" => " my value"]);
+BuffLog::info("I am a info with context", ["my key" => " my value"]);
+BuffLog::warning("I am a warning", ["duration" => "40ms"]);
 
-Bufflog::critical("I'm critical log, here some extra fancy informations",
+BuffLog::critical("I'm critical log, here some extra fancy informations",
                     [
                         "duration" => "40ms",
                         "services_related" => [
