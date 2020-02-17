@@ -49,7 +49,7 @@ BuffLog::critical("I'm critical log, here some extra fancy informations",
 ## Log verbosity levels
 
 By default, only logs with the WARNING level are output. 
-If you wish to see more logs, simply set the `LOG_VERBOSITY` to the desired level. Here the list with their level and their use case:
+If you wish to see more logs, simply set the `LOG_LEVEL` to the desired level. Here the list with their level and their use case:
 
 | Levels  | Use case  | Examples  |
 |:-:|---|---|
