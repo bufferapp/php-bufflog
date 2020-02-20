@@ -34,8 +34,7 @@ BuffLog::debug("some context", ["my key" => " my value"]);
 BuffLog::info("I am a info with context", ["my key" => " my value"]);
 BuffLog::warning("I am a warning", ["duration" => "40ms"]);
 
-BuffLog::critical("I'm critical log, here some extra fancy informations",
-                    [
+BuffLog::critical("I'm critical log, here some extra fancy informations", [
                         "duration" => "40ms",
                         "services_related" => [
                             "Twitter",
