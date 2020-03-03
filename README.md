@@ -52,7 +52,7 @@ If you wish to see more logs, simply set the `LOG_LEVEL` to the desired level. H
 | Levels  | Use case  | Examples  |
 |:-:|---|---|
 | DEBUG  | Information used for interactive investigation, with no long-term value.| Printing function names, steps inside a function. |
-| INFO | Interesting events. Track the general flow of the application. | User logs in, SQL logs. |
+| INFO | Interesting events. Track the general flow of the application. | User logs in, SQL logs, worker process/delete a message... |
 | NOTICE | Uncommon events. **This is the default verbosity level**. |  Missing environment variables, page redirection, pod starting/restarting/terminating, retrying to query an API... |
 | WARNING | Exceptional occurrences that are not errors. Undesirable things that are not necessarily wrong. | Use of deprecated APIs,  poor use of an API, unauthorized access, pod restart because of memory limit ... |
 | ERROR | Runtime errors. Highlight when the current flow of execution is stopped due to a failure. | Exceptions messages, incorect credentials or permissions...  |
