@@ -51,9 +51,9 @@ If you wish to see more logs, simply set the `LOG_LEVEL` to the desired level. H
 
 | Levels  | Use case  | Examples  |
 |:-:|---|---|
-| DEBUG  | Logs that are used for interactive investigation during development. These logs should primarily contain information useful for debugging and have no long-term value.  |   |
-| INFO | Informational messages |   |
-| NOTICE | Logs that track the general flow of the application. This is the default level |   |
-| WARNING | Logs that highlight an abnormal or unexpected event in the application flow, but do not otherwise cause the application execution to stop.  |   |
-| ERROR |  Logs that highlight when the current flow of execution is stopped due to a failure. These should indicate a failure in the current activity, not an application-wide failure. |   |
-| CRITICAL  | Logs that describe an unrecoverable application or system crash, or a catastrophic failure that requires immediate attention.  |   |
+| DEBUG  | Information used for interactive investigation, with no long-term value.| Printing function names, steps inside a function. |
+| INFO | Interesting events. Track the general flow of the application. | User logs in, SQL logs, worker process/delete a message... |
+| NOTICE | Uncommon events. **This is the default verbosity level**. |  Missing environment variables, page redirection, pod starting/restarting/terminating, retrying to query an API... |
+| WARNING | Exceptional occurrences that are not errors. Undesirable things that are not necessarily wrong. | Use of deprecated APIs,  poor use of an API, unauthorized access, pod restart because of memory limit ... |
+| ERROR | Runtime errors. Highlight when the current flow of execution is stopped due to a failure. | Exceptions messages, incorect credentials or permissions...  |
+| CRITICAL  | Critical conditions. Describe an unrecoverable application, system crash, or a catastrophic failure that requires immediate attention.  | Application component unavailable, unexpected exception. entire website down, database unavailable ...|
