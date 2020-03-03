@@ -51,9 +51,9 @@ If you wish to see more logs, simply set the `LOG_LEVEL` to the desired level. H
 
 | Levels  | Use case  | Examples  |
 |:-:|---|---|
-| DEBUG  | Logs that are used for interactive investigation during development. These logs should primarily contain information useful for debugging and have no long-term value.  |   |
-| INFO | Informational messages |   |
-| NOTICE | Logs that track the general flow of the application. This is the default level |   |
-| WARNING | Logs that highlight an abnormal or unexpected event in the application flow, but do not otherwise cause the application execution to stop.  |   |
-| ERROR |  Logs that highlight when the current flow of execution is stopped due to a failure. These should indicate a failure in the current activity, not an application-wide failure. |   |
-| CRITICAL  | Logs that describe an unrecoverable application or system crash, or a catastrophic failure that requires immediate attention.  |   |
+| DEBUG  | Detailed debug information. Used for interactive investigation during development. Should primarily contain information useful for debugging and have no long-term value. |   |
+| INFO | Interesting events. Track the general flow of the application. | User logs in, SQL logs. |
+| NOTICE | Uncommon events. This is the default verbosity level |   |
+| WARNING | Exceptional occurrences that are not errors.  | Use of deprecated APIs, poor use of an API, undesirable things that are not necessarily wrong. |
+| ERROR | Runtime errors. Highlight when the current flow of execution is stopped due to a failure. |   |
+| CRITICAL  | Critical conditions. Describe an unrecoverable application, system crash, or a catastrophic failure that requires immediate attention.  | Application component unavailable, unexpected exception. Entire website down, database unavailable, etc.|
