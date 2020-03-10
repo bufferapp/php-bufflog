@@ -17,7 +17,7 @@ BuffLog::warning("I am a warning", ["duration" => "40ms"]);
 BuffLog::error("I am an error");
 BuffLog::error("I am an error", ["mean" => "70"]);
 
-BuffLog::criticals("I am criticals information with a typo and you shouldn't see me!");
+BuffLog::critical("I am criticals information with a typo and you shouldn't see me!");
 BuffLog::critical("I am critical information!", ["user" => "betrand"]);
 
 BuffLog::critical("I'm critical log, here some extra fancy informations", 
