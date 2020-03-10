@@ -40,7 +40,7 @@ class BuffLog {
 	protected static function configureInstance()
 	{
 
-        if (class_exists("\DDTrace\GlobalTracer")) {
+        if (class_exists("\DDTrace\GlobalTracer") && getenv("ENVIRONMENT") !== "local") {
             self::$hasGlobalTracer = true;
         } else {
             error_log("Tip #1: Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier.");
