@@ -43,6 +43,7 @@ class BuffLog {
         if (class_exists("\DDTrace\GlobalTracer")) {
             self::$hasGlobalTracer = true;
         } else {
+            // local envs don't need tracing
             if (getenv("ENVIRONMENT") !== "local") {
                 error_log("Tip #1: Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier.");
                 error_log("Tip #2: If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?");
