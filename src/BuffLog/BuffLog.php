@@ -110,8 +110,11 @@ class BuffLog {
             if (in_array($methodName, array_merge(self::$logOutputMethods, self::$extraAllowedMethods))) {
 
                 if (in_array($methodName, self::$logOutputMethods)) {
-                    // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
-                    return call_user_func_array(array(self::getLogger(), $methodName), $args);
+
+                    if (self::checkLogParametersType($args)) {
+                        // Where the magic happen. We "proxy" functions name with arguments to the Monolog instance
+                        return call_user_func_array(array(self::getLogger(), $methodName), $args);
+                    }
                 }
             } else {
                 error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it");
@@ -119,6 +122,28 @@ class BuffLog {
         } else {
             error_log("BuffLog::$methodName() method does not exist");
         }
+
+        return false;
+    }
+
+    private static function checkLogParametersType($args)
+    {
+        if (count($args) > 2) {
+            error_log("BuffLog: Too many parameters");
+            return false;
+        }
+
+        if (isset($args[0]) && !is_string($args[0])) {
+            error_log("BuffLog: First parameter must be a string");
+            return false;
+        }
+
+        if (isset($args[1]) && !is_array($args[1])) {
+            error_log("BuffLog: Second parameter must be an array");
+            return false;
+        }
+
+        return true;
     }
 
 }

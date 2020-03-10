@@ -5,7 +5,7 @@ require_once('./src/BuffLog/BuffLog.php');
 use Buffer\BuffLog\Bufflog;
 
 // putenv("LOG_VERBOSITY=WARNING");
-BuffLog::debug("I am a debug");
+BuffLog::debug("I am a debug string");
 BuffLog::debug("I am a debug with context", ["my key" => " my value"]);
 
 BuffLog::info("I am an info");
