@@ -5,7 +5,10 @@ require_once('./src/BuffLog/BuffLog.php');
 use Buffer\BuffLog\Bufflog;
 
 // putenv("LOG_VERBOSITY=WARNING");
-BuffLog::debug("I am a debug string");
+BuffLog::debug("I am a debug string", 2, 2);
+BuffLog::debug(["I am a"]);
+BuffLog::debug("I am a", "test");
+BuffLog::debug("I am a debug string", 2, 2);
 BuffLog::debug("I am a debug with context", ["my key" => " my value"]);
 
 BuffLog::info("I am an info");
@@ -14,7 +17,7 @@ BuffLog::info("I am a info with context", ["my key" => " my value"]);
 BuffLog::warning("I am a warning");
 BuffLog::warning("I am a warning", ["duration" => "40ms"]);
 
-BuffLog::error("I am an error");
+BuffLog::error(2);
 BuffLog::error("I am an error", ["mean" => "70"]);
 
 BuffLog::critical("I am criticals information with a typo and you shouldn't see me!");

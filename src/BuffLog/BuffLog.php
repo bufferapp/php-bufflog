@@ -45,8 +45,12 @@ class BuffLog {
         } else {
             // local envs don't need tracing
             if (getenv("ENVIRONMENT") !== "local") {
-                error_log("Tip #1: Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier.");
-                error_log("Tip #2: If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?");
+                echo json_encode([
+                        "message" => "Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier. If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?",
+                        "level" => 300,
+                        "level_name" => "WARNING",
+                        "context" => ["bufflog_error" => "no_tracer"]
+                ]);
             }
         }
 
@@ -117,10 +121,10 @@ class BuffLog {
                     }
                 }
             } else {
-                error_log("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it");
+                self::getLogger()->warning("BuffLog::$methodName() is not supported yet. Add it to the BuffLog whitelist to allow it", ["bufflog_error" => "method_not_supported"]);
             }
         } else {
-            error_log("BuffLog::$methodName() method does not exist");
+            self::getLogger()->warning("BuffLog::$methodName() method does not exist", ["bufflog_error" => "method_not_exist"]);
         }
 
         return false;
@@ -129,17 +133,17 @@ class BuffLog {
     private static function checkLogParametersType($args)
     {
         if (count($args) > 2) {
-            error_log("BuffLog: Too many parameters");
+            self::getLogger()->warning("BuffLog: Malformed logs: Too many parameters", ["bufflog_error" => "incorrect_parameters", "args" => $args]);
             return false;
         }
 
         if (isset($args[0]) && !is_string($args[0])) {
-            error_log("BuffLog: First parameter must be a string");
+            self::getLogger()->warning("BuffLog: Malformed logs: First parameter must be a string", ["args" => $args, "bufflog_error" => "incorrect_parameters"]);
             return false;
         }
 
         if (isset($args[1]) && !is_array($args[1])) {
-            error_log("BuffLog: Second parameter must be an array");
+            self::getLogger()->warning("BuffLog: Malformed logs: Second parameter must be an array", ["args" => $args, "bufflog_error" => "incorrect_parameters"]);
             return false;
         }
 
