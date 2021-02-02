@@ -1,5 +1,5 @@
 <?php
-namespace Buffer\Bufflog;
+namespace Buffer\BuffLog;
 
 use Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
