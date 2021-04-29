@@ -1,10 +1,10 @@
 {
     "name": "bufferapp/php-bufflog",
     "description": "PHP log libraries for Buffer services",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "require": {
-        "php": "^7.1",
-        "monolog/monolog": "^1.20",
+        "php": "^7.2",
+        "monolog/monolog": "^2.2",
         "psr/log": "^1.1"
     },
     "require-dev": {
