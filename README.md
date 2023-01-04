@@ -5,7 +5,7 @@ PHP logger for all Buffer services
 
 ## Requirements
 
-PHP 7.1 and later.
+PHP 8.1 and later.
 
 ## Setup BuffLog in your PHP project via Composer
 
