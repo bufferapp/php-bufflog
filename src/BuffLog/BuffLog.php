@@ -3,6 +3,7 @@ namespace Buffer\BuffLog;
 
 use Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Level as LogLevel;
 
 class BuffLog {
 
@@ -10,7 +11,7 @@ class BuffLog {
     private     static $logger = null;
 
     // default verbosity starting at this level
-    private     static $verbosityLevel = Logger::NOTICE;
+    private     static $verbosityLevel = LogLevel::Notice;
 
     // verbosity can be changed with setting this env var
     public      static $logLevelEnvVar = "LOG_LEVEL";
@@ -60,13 +61,12 @@ class BuffLog {
         $logger = new Logger('php-bufflog');
 
         $logLevelFromEnv = getenv(self::$logLevelEnvVar);
-        $monologLevels = $logger->getLevels();
         if ($logLevelFromEnv) {
             // only if the level exists, we change the verbosity level
-            if (key_exists($logLevelFromEnv, $monologLevels)) {
-                self::$verbosityLevel = $monologLevels[$logLevelFromEnv];
+            if (in_array($logLevelFromEnv, LogLevel::VALUES) || in_array($logLevelFromEnv, LogLevel::NAMES)) {
+                self::$verbosityLevel = $logLevelFromEnv;
             } else {
-                error_log(self::$logLevelEnvVar . "={$logLevelFromEnv} verbosity level does not exists. Please use: " . implode(', ', array_keys($monologLevels)));
+                error_log(self::$logLevelEnvVar . "={$logLevelFromEnv} verbosity level does not exists. Please use: " . implode(', ', array_keys(LogLevel::VALUES)));
             }
         }
 
