@@ -1,14 +1,14 @@
 {
     "name": "bufferapp/php-bufflog",
     "description": "PHP log libraries for Buffer services",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "require": {
-        "php": "^7.1",
-        "monolog/monolog": "^1.20",
-        "psr/log": "^1.1"
+        "php": ">=7.2",
+        "monolog/monolog": "^2.8.0",
+        "psr/log": "^2.0 || ^3.0"
     },
     "require-dev": {
-        "datadog/dd-trace": "0.34.*"
+        "datadog/dd-trace": "0.83.*"
     },
     "autoload": {
         "psr-4": {
