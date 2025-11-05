@@ -16,9 +16,6 @@ class BuffLog {
     // verbosity can be changed with setting this env var
     public      static $logLevelEnvVar = "LOG_LEVEL";
 
-    // Global Tracer comes with the datadog tracing extension
-    private     static $hasGlobalTracer = false;
-
     // we can use strtolower(Logger::getLevels()) instead
     private     static $logOutputMethods = ['debug', 'info', 'notice', 'warning', 'error', 'critical'];
 
@@ -41,13 +38,12 @@ class BuffLog {
 	protected static function configureInstance()
 	{
 
-        if (class_exists("\DDTrace\GlobalTracer")) {
-            self::$hasGlobalTracer = true;
-        } else {
+        // Check if DDTrace functions are available and warn if not
+        if (!function_exists("\DDTrace\logs_correlation_trace_id")) {
             // local envs don't need tracing
             if (getenv("ENVIRONMENT") !== "local") {
                 echo json_encode([
-                        "message" => "Can't find \DDTrace\GlobalTracer class. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier. If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?",
+                        "message" => "Can't find DDTrace functions. Did you install the Datadog APM tracer extension? It will allow you to have logs enriched with traces making troubleshooting easier. If you run a cli mode service (such as a worker), did you set the DD_TRACE_CLI_ENABLED env variable?",
                         "level" => 300,
                         "level_name" => "WARNING",
                         "context" => ["bufflog_error" => "no_tracer"]
@@ -87,15 +83,13 @@ class BuffLog {
             //     'profileID' => $user->getProfileID()
             // );
 
-            if (self::$hasGlobalTracer) {
+            // Add traces information to correlate logs with APM
+            if (function_exists('\DDTrace\logs_correlation_trace_id') && function_exists('\dd_trace_peek_span_id')) {
                 try {
-                    // Add traces information to be able to correlate logs with APM
-                    $ddTraceSpan = \DDTrace\GlobalTracer::get()->getActiveSpan();
-                    $record['context']['dd'] = [
-                        "trace_id" => $ddTraceSpan->getTraceId(),
-                        "span_id"  => $ddTraceSpan->getSpanId()
+                    $record->extra['dd'] = [
+                        'trace_id' => \DDTrace\logs_correlation_trace_id(),
+                        'span_id'  => \dd_trace_peek_span_id()
                     ];
-
                 } catch (\Exception $e) {
                     // no-op
                 }
